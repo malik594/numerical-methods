@@ -1,0 +1,49 @@
+
+
+# Given values
+x = 75.0 
+abs_err_x = 0.5  # Absolute error of x
+
+# (a) Absolute and relative error of x
+rel_err_x = abs_err_x / x
+
+# (b) Absolute and relative error of x + x
+abs_err_x_plus_x = 2 * abs_err_x
+rel_err_x_plus_x = abs_err_x_plus_x / (x + x)
+
+# (c) Absolute and relative error of x * x
+abs_err_x_times_x = 2 * x * abs_err_x
+rel_err_x_times_x = abs_err_x_times_x / (x * x)
+
+# (d) Error propagation for y = f(x) = 4x^3 - 3x^2 + 1
+def f(x):
+    return 4 * x**3 - 3 * x**2 + 1
+
+def df_dx(x):
+    # Derivative of f(x) with respect to x: f'(x) = 12x^2 - 6x
+    return 12 * x**2 - 6 * x
+
+# Calculate y and dy (error in y)
+y = f(x)
+df = df_dx(x)
+dy = abs(df * abs_err_x)  # Propagated absolute error in y
+
+# Relative error in y
+rel_err_y = dy / abs(y)
+
+# Store results in variables
+abs_err_y = dy
+
+# Print the results
+print("(a) Absolute error of x:", abs_err_x)
+print("(a) Relative error of x:", rel_err_x)
+print("(b) Absolute error of x + x:", abs_err_x_plus_x)
+print("(b) Relative error of x + x:", rel_err_x_plus_x)
+print("(c) Absolute error of x * x:", abs_err_x_times_x)
+print("(c) Relative error of x * x:", rel_err_x_times_x)
+print("(d) Absolute error of y = f(x):", abs_err_y)
+print("(d) Relative error of y = f(x):", rel_err_y)
+ print("CS 3513, Spring 2025")
+    print("Exercise 1")
+    print("StudentName = ", "malik melendez") 
+    print("GitHub Username = ", "malik594") 
