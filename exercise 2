@@ -1,0 +1,122 @@
+#Question 1
+import decimal
+
+def foo(a, b):
+    return (decimal.Decimal('333.75') * (b**6) + a**2 * (decimal.Decimal('11') * (a**2) * (b**2) - (b**6) - decimal.Decimal('121') * (b**4) - decimal.Decimal('2')) + decimal.Decimal('5.5') * (b**8) + (a / (decimal.Decimal('2') * b)))
+
+a = decimal.Decimal(77617)
+b = decimal.Decimal(33096)
+
+#using standard float
+a_float, b_float = float(a), float(b)
+float_result = (333.75 * (b_float**6) + a_float**2 * (11 * (a_float**2) * (b_float**2) - (b_float**6) - 121 * (b_float**4) - 2) + 5.5 * (b_float**8) + (a_float / (2 * b_float)))
+print(f"Standard float result: {float_result}")
+
+# Evaluate using Decimal with increasing precision
+precisions = [5, 10, 20, 30, 40, 50, 60]
+correct_value = None
+correct_precision = None
+
+for prec in precisions:
+    decimal.getcontext().prec = prec
+    result = foo(a, b)
+    print(f"Decimal result with precision {prec}: {result}")
+    
+    if correct_value is None:
+        correct_value = result  # Store the first high-precision value as correct
+    else:
+        if round(result, 16) == round(correct_value, 16):
+            correct_precision = prec
+            break
+
+print(f"Smallest precision for 16 correct decimal digits: {correct_precision}")
+
+#Question 2
+
+import decimal
+import math
+
+def foo(a, b):
+    return (decimal.Decimal('333.75') * (b**6) + a**2 * (decimal.Decimal('11') * (a**2) * (b**2) - (b**6) - decimal.Decimal('121') * (b**4) - decimal.Decimal('2')) + decimal.Decimal('5.5') * (b**8) + (a / (decimal.Decimal('2') * b)))
+
+def bar(x, c):
+    return (math.exp(c * x) - math.exp(-c * x)) / (math.exp(c * x) + math.exp(-c * x))
+
+def d_bar(x, c):
+    return c * (1 - bar(x, c)**2)
+
+x_values = [1e-2, 1e-8, 1e-16]
+c_values = [1e1, 1e2, 1e4]
+
+table_header = "{:>10} {:>20} {:>20} {:>20} {:>20} {:>20} {:>20}".format(
+    "c", "bar(x, c)", "bar(x+dx, c)", "delta", "ratio", "deriv", "est diff")
+print(table_header)
+print("-" * len(table_header))
+
+for x in x_values:
+    for dx in [x / 1e6, x / 1e12]:
+        for c in c_values:
+            bar_x = bar(x, c)
+            bar_x_dx = bar(x + dx, c)
+            delta = abs(bar_x - bar_x_dx)
+            ratio = delta / dx
+            deriv = d_bar(x, c)
+            est_diff = abs(delta - deriv * dx)
+            
+            print("{:10.2e} {:20.12e} {:20.12e} {:20.12e} {:20.12e} {:20.12e} {:20.12e}".format(
+                c, bar_x, bar_x_dx, delta, ratio, deriv, est_diff
+            ))
+
+
+#Question 3
+
+import decimal
+import math
+
+def foo(a, b):
+    return (decimal.Decimal('333.75') * (b**6) + a**2 * (decimal.Decimal('11') * (a**2) * (b**2) - (b**6) - decimal.Decimal('121') * (b**4) - decimal.Decimal('2')) + decimal.Decimal('5.5') * (b**8) + (a / (decimal.Decimal('2') * b)))
+
+def bar(x, c):
+    return (math.exp(c * x) - math.exp(-c * x)) / (math.exp(c * x) + math.exp(-c * x))
+
+def d_bar(x, c):
+    return c * (1 - bar(x, c)**2)
+
+def question3():
+    def methodA(x0, y0, x1, y1):
+        return (x1 * y0 - x0 * y1) / (y0 - y1)
+    
+    def methodB(x0, y0, x1, y1):
+        return x0 - ((x1 - x0) * y0) / (y1 - y0)
+    
+    points = (decimal.Decimal('1.02'), decimal.Decimal('3.32'), decimal.Decimal('1.31'), decimal.Decimal('4.31'))
+    
+    decimal.getcontext().prec = 3
+    xA_low = methodA(*points)
+    xB_low = methodB(*points)
+    print(f"Precision 3: MethodA: {xA_low}, MethodB: {xB_low}")
+    
+    decimal.getcontext().prec = 16
+    xA_high = methodA(*points)
+    xB_high = methodB(*points)
+    print(f"Precision 16: True Value: {xA_high}")
+    
+    abs_err_A = abs(xA_high - xA_low)
+    abs_err_B = abs(xA_high - xB_low)
+    rel_err_A = abs_err_A / abs(xA_high)
+    rel_err_B = abs_err_B / abs(xA_high)
+    
+    print(f"Absolute Error - MethodA: {abs_err_A}, MethodB: {abs_err_B}")
+    print(f"Relative Error - MethodA: {rel_err_A}, MethodB: {rel_err_B}")
+    
+    if abs_err_A < abs_err_B:
+        print("Method A is better because it has a lower absolute error.")
+    else:
+        print("Method B is better because it has a lower absolute error."#)
+
+
+if __name__ == "__main__":
+    print("CS 3513, Spring 2025")
+    print("Exercise 2")
+    print("StudentName = ", "malik melendez")
+    print("GitHub Username = ", "malik594")  
