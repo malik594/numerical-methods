@@ -1,0 +1,110 @@
+# %%
+from math import cos, sin
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.optimize
+
+# Functions
+def bar(t):
+    return (t - 1/3) * (t - (7+1/3)) * (t - (2**10 - 2/3)) * np.cos(t/600)
+
+def baz(t):
+    return ((t - 1/3) ** 3) * ((t - (7+1/3)) ** 3) * ((t - (2**10 - 2/3)) ** 3) * np.cos(t/600)
+
+# First derivatives
+def diff_bar(z):
+    return -(z - 1023.33333333333)*(z - 7.33333333333333)*(z - 0.333333333333333)*np.sin(z/600)/600 + \
+           (z - 1023.33333333333)*(z - 7.33333333333333)*np.cos(z/600) + \
+           (z - 1023.33333333333)*(z - 0.333333333333333)*np.cos(z/600) + \
+           (z - 7.33333333333333)*(z - 0.333333333333333)*np.cos(z/600)
+
+def diff_baz(z):
+    return -704375740.88706*(0.000977198697068404*z - 1)**3*(0.136363636363636*z - 1)**3*(z - 0.333333333333333)**3*np.sin(z/600) + \
+           1267876333596.71*(0.000977198697068404*z - 1)**3*(0.136363636363636*z - 1)**3*(z - 0.333333333333333)**2*np.cos(z/600) + \
+           172892227308.642*(0.000977198697068404*z - 1)**3*(0.136363636363636*z - 1)**2*(z - 0.333333333333333)**3*np.cos(z/600) + \
+           1238967101.23457*(0.000977198697068404*z - 1)**2*(0.136363636363636*z - 1)**3*(z - 0.333333333333333)**3*np.cos(z/600)
+
+# Root-finding function
+def find_roots(f, df, method="brentq", intervals=None):
+    roots = []
+    for a, b in intervals:
+        try:
+            if method == "newton":
+                root = scipy.optimize.newton(f, x0=(a+b)/2, fprime=df)
+            elif method == "bisect":
+                root = scipy.optimize.bisect(f, a, b)
+            elif method == "ridder":
+                root = scipy.optimize.ridder(f, a, b)
+            else:
+                root = scipy.optimize.brentq(f, a, b)
+            roots.append(root)
+        except (RuntimeError, ValueError):
+            pass
+    return roots
+
+# Question implementations
+def Question1():
+    print("Question 1: Finding roots of bar(t)")
+    intervals = [(0, 2), (6, 8), (1000, 1050)]
+    methods = ["bisect", "brentq", "ridder", "newton"]
+    for method in methods:
+        roots = find_roots(bar, diff_bar, method, intervals)
+        print(f"{method.capitalize()} method roots: {roots}")
+
+def Question2():
+    print("Question 2: Finding roots of baz(t)")
+    intervals = [(0, 2), (6, 8), (1000, 1050)]
+    methods = ["bisect", "brentq", "ridder", "newton"]
+    for method in methods:
+        roots = find_roots(baz, diff_baz, method, intervals)
+        print(f"{method.capitalize()} method roots: {roots}")
+
+def Question3():
+    print("Question 3: Comparing root-finding performance")
+    import time
+    intervals = [(0, 2), (6, 8), (1000, 1050)]
+    methods = ["bisect", "brentq", "ridder", "newton"]
+    functions = [(bar, diff_bar, "bar"), (baz, diff_baz, "baz")]
+    for f, df, name in functions:
+        print(f"\n{name}(t):")
+        for method in methods:
+            start = time.time()
+            roots = find_roots(f, df, method, intervals)
+            elapsed = time.time() - start
+            print(f"{method.capitalize()} method - Roots: {roots} | Time: {elapsed:.6f}s")
+
+def Question4():
+    print("Question 4: Plotting bar(t) and baz(t) with roots")
+    t_values = np.linspace(0, 1050, 1000)
+    plt.figure(figsize=(10, 6))
+    plt.subplot(2, 1, 1)
+    plt.plot(t_values, bar(t_values), label="bar(t)")
+    roots_bar = find_roots(bar, diff_bar, "brentq", [(0, 2), (6, 8), (1000, 1050)])
+    plt.scatter(roots_bar, [bar(r) for r in roots_bar], color='red', label="Roots", zorder=3)
+    plt.axhline(0, color='gray', linestyle='--')
+    plt.legend()
+    plt.title("Function bar(t)")
+    plt.subplot(2, 1, 2)
+    plt.plot(t_values, baz(t_values), label="baz(t)")
+    roots_baz = find_roots(baz, diff_baz, "brentq", [(0, 2), (6, 8), (1000, 1050)])
+    plt.scatter(roots_baz, [baz(r) for r in roots_baz], color='red', label="Roots", zorder=3)
+    plt.axhline(0, color='gray', linestyle='--')
+    plt.legend()
+    plt.title("Function baz(t)")
+    plt.tight_layout()
+    plt.show()
+
+# %%
+if __name__ == "__main__" :
+    print("CS 3513, Spring 2025")
+    print("Exercise 3")
+    print("StudentName = ", "malik melendez")  # replace ??? with your name
+    print("GitHub Username = ", "malik594")  # replace ??? with your GitHub username
+    print()
+    Question1()
+    print()
+    Question2()
+    print()
+    Question3()
+    print()
+    Question4()
